@@ -46,11 +46,14 @@ def player_tag(p):
     return tag
 
 
-def render_table(players, community, pot, viewer):
+def render_table(players, community, pot, viewer, quest=None, coins=None):
     others = [p for p in players if p is not viewer]
     backs = [None if p.folded else 'back' for p in others]
 
     lines = ['=' * WIDTH]
+    if quest is not None:
+        lines.append(f"코인: {coins}  |  퀘스트: {quest['desc']} ({quest['progress']}/{quest['target']}, 보상 {quest['reward']}코인)".center(WIDTH))
+        lines.append('-' * WIDTH)
     lines.append(' '.join(player_tag(p) for p in others).center(WIDTH))
     lines.append(center_block(render_row(backs), WIDTH))
     lines.append('')

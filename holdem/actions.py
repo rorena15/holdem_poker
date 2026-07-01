@@ -56,7 +56,9 @@ def bot_decision(player, community, need, pot, min_raise):
 
 
 def human_action(p, players, community, need, pot):
-    print('\n' + render_table(players, community, pot, p))
+    quest = getattr(p, 'quest', None)
+    coins = getattr(p, 'coins', None)
+    print('\n' + render_table(players, community, pot, p, quest=quest, coins=coins))
     print(f"콜금액: {need}")
     while True:
         cmd = input("행동 (f=폴드, c=콜/체크, r 금액=레이즈): ").strip().lower()
