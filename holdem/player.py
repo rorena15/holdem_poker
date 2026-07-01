@@ -1,8 +1,9 @@
 class Player:
-    def __init__(self, name, chips, is_human):
+    def __init__(self, name, chips, is_human, style=None):
         self.name = name
         self.chips = chips
         self.is_human = is_human
+        self.style = style
         self.hole = []
         self.bet = 0
         self.total_bet = 0

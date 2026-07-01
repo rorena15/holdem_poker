@@ -1,4 +1,14 @@
+import random
+import time
+
 from .actions import bot_decision, human_action
+
+THINK = True
+
+
+def bot_think():
+    if THINK:
+        time.sleep(random.uniform(0.5, 1.5))
 
 
 def next_active(players, idx):
@@ -23,8 +33,11 @@ def betting_round(players, community, pot, start_idx, min_bet):
             break
         need = current_bet - p.bet
         if p.is_human:
-            action, amt = human_action(p, community, need, pot)
+            action, amt = human_action(p, players, community, need, pot)
         else:
+            print(f"{p.name} 생각 중...", end='', flush=True)
+            bot_think()
+            print('\r' + ' ' * 20 + '\r', end='')
             action, amt = bot_decision(p, community, need, pot, min_bet)
 
         if action == 'fold':

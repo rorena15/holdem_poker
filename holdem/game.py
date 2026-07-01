@@ -1,7 +1,8 @@
 import random
 
 from .betting import betting_round, next_active
-from .cards import cards_str, make_deck
+from .cards import make_deck
+from .display import render_row
 from .evaluator import HAND_NAMES, best_hand
 from .player import post_blind
 
@@ -21,7 +22,7 @@ def build_side_pots(players):
     return pots
 
 
-def showdown(players, community):
+def showdown(players, community, dealer_idx):
     total_pot = sum(p.total_bet for p in players)
     active = [p for p in players if not p.folded]
     if len(active) == 1:
@@ -29,11 +30,15 @@ def showdown(players, community):
         print(f"\n{active[0].name} 승리! (모두 폴드) +{total_pot}")
         return
 
-    print(f"\n=== 쇼다운 === 커뮤니티: {cards_str(community)}")
+    print(f"\n=== 쇼다운 ===\n{render_row(community)}\n")
     scores = {}
     for p in active:
         scores[p] = best_hand(p.hole + community)
-        print(f"{p.name}: {cards_str(p.hole)} -> {HAND_NAMES[scores[p][0]]}")
+        print(f"{p.name} ({HAND_NAMES[scores[p][0]]})")
+        print(render_row(p.hole))
+
+    n = len(players)
+    seat_order = [(dealer_idx + 1 + i) % n for i in range(n)]
 
     pots = build_side_pots(players)
     for i, (amount, eligible) in enumerate(pots):
@@ -41,6 +46,7 @@ def showdown(players, community):
             continue
         best_score = max(scores[p] for p in eligible)
         winners = [p for p in eligible if scores[p] == best_score]
+        winners.sort(key=lambda w: seat_order.index(players.index(w)))
         share, remainder = divmod(amount, len(winners))
         for j, w in enumerate(winners):
             w.chips += share + (remainder if j == 0 else 0)
@@ -64,7 +70,7 @@ def play_hand(players, dealer_idx, small_blind, big_blind):
         p.hole = [deck.pop(), deck.pop()]
     for p in players:
         if p.is_human:
-            print(f"{p.name} 카드: {cards_str(p.hole)}")
+            print(f"{p.name} 카드:\n{render_row(p.hole)}")
 
     community = []
     start = next_active(players, bb_idx)
@@ -75,10 +81,10 @@ def play_hand(players, dealer_idx, small_blind, big_blind):
             break
         deck.pop()
         community += [deck.pop() for _ in range(count)]
-        print(f"\n커뮤니티 카드: {cards_str(community)}")
+        print(f"\n커뮤니티 카드:\n{render_row(community)}")
         for p in players:
             p.bet = 0
         start = next_active(players, dealer_idx)
         pot = betting_round(players, community, pot, start, big_blind)
 
-    showdown(players, community)
+    showdown(players, community, dealer_idx)

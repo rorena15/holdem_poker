@@ -1,3 +1,6 @@
+import random
+
+from holdem.actions import PERSONALITIES
 from holdem.game import play_hand
 from holdem.player import Player
 
@@ -12,7 +15,7 @@ def main():
 
     small_blind, big_blind = 10, 20
     players = [Player("나", 1000, True)]
-    players += [Player(f"봇{i+1}", 1000, False) for i in range(num_bots)]
+    players += [Player(f"봇{i+1}", 1000, False, style=random.choice(PERSONALITIES)) for i in range(num_bots)]
     dealer_idx = 0
 
     while True:
